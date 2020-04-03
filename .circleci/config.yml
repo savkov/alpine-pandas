@@ -33,7 +33,7 @@ jobs:
     steps:
     - checkout
     - run:
-        command: . make build
+        command: make build
         no_output_timeout: 30m
   push:
     <<: *prelude
