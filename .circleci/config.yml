@@ -1,0 +1,49 @@
+version: 2
+
+prelude: &prelude
+  machine: true
+  working_directory: ~/alpine-pandas
+
+only_master: &only_master
+  filters:
+    branches:
+      only:
+      - master
+
+not_master: &not_master
+  filters:
+    branches:
+      ignore:
+      - master
+
+workflows:
+  version: 2
+  docker-flow:
+    jobs:
+    - build:
+        context: sasho
+        <<: *not_master
+    - push:
+        context: sasho
+        <<: *only_master
+
+jobs:
+  build:
+    <<: *prelude
+    steps:
+    - checkout
+    - run:
+        command: make build
+        no_output_timeout: 30m
+  push:
+    <<: *prelude
+    steps:
+    - checkout
+    - run:
+        no_output_timeout: 30m
+        command: |
+          make login
+          make build
+          make tag-semver
+          make tag-latest
+          make push
